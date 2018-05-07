@@ -6,6 +6,7 @@ from dingtalk.storage.kvstorage import KvStorage
 from django.conf import settings
 from dingtalk.client import isv
 
+from . import models, constants
 
 redis_client = redis.Redis.from_url(settings.REDIS_DINGTALK_URL)
 
@@ -37,3 +38,38 @@ class ISVClient(isv.ISVClient):
                 self.cache.ch_permanent_code.set(corp_id, corp.ch_permanent_code)
                 ret = corp.ch_permanent_code
         return ret
+
+
+def set_agent(corp_model, agents, agent_type):
+    for agent in agents:
+        a = models.Agent.objects.get_all_queryset().filter(app_id=agent['appid'], suite_id=corp_model.suite_id).first()
+        if a is None:
+            a = models.Agent()
+            a.app_id = agent['appid']
+            a.suite_id = corp_model.suite_id
+            a.agent_type = agent_type
+        a.name = agent['agent_name']
+        a.logo_url = agent['logo_url']
+        a.save_or_update()
+        ca = models.CorpAgent.objects.get_all_queryset().filter(corp_agent_id=agent['agent_id'],
+                                                                agent_id=a.pk, corp_id=corp_model.pk).first()
+        if ca is None:
+            ca = models.CorpAgent()
+            ca.corp_agent_id = agent['agent_id']
+            ca.agent_id = a.pk
+            ca.corp_id = corp_model.pk
+            ca.save(force_insert=True)
+
+
+def set_corp_info(corp_model, corp_info):
+    auth_corp_info = corp_info.get('auth_corp_info', {})
+    for key in ('corp_logo_url', 'corp_name', 'industry', 'invite_code', 'license_code', 'auth_channel',
+                'auth_channel_type', 'is_authenticated', 'auth_level', 'invite_url'):
+        value = auth_corp_info.get(key, None)
+        if value is not None:
+            setattr(corp_model, key, value)
+    corp_model.save_changed()
+    agents = corp_info.get('auth_info', {}).get('agent', [])
+    set_agent(corp_model, agents, constants.AGENT_TYPE_CODE.MICRO.code)
+    channel_agents = corp_info.get('channel_auth_info', {}).get('channelAgent', [])
+    set_agent(corp_model, channel_agents, constants.AGENT_TYPE_CODE.CHANNEL.code)

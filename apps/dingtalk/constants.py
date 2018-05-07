@@ -22,3 +22,9 @@ AGENT_CLOSE_CODE = Code((
     ('NORMAL',          1,  '正常'),
     ('NEED_ACTIVE',     2,  '待激活'),
 ))
+
+AGENT_TYPE_CODE = Code((
+    ('UNKNOWN',         0,  '未知'),
+    ('MICRO',           10, '微应用'),
+    ('CHANNEL',         20, '服务窗'),
+))

@@ -54,24 +54,52 @@ class Corp(model.BaseModel):
         unique_together = ('corpid', 'suite')
         verbose_name = verbose_name_plural = '企业信息'
 
-#
-# class Agent(model.BaseModel):
-#     agentid = models.BigIntegerField('应用id', null=False, blank=False)
-#     name = models.CharField('应用名称', max_length=256, null=False, blank=True)
-#     logo_url = models.ImageField('应用头像', max_length=1024, null=False, blank=True)
-#     description = models.CharField('应用详情')
-#     close = models.IntegerField('是否被禁用', choices=(constants.AGENT_CLOSE_CODE.get_list()),
-#                                 default=constants.AGENT_CLOSE_CODE.FORBIDDEN, null=False, blank=False)
-#     corp = model.ForeignKey(
-#         Corp,
-#         to_field='corpid',
-#         verbose_name='企业',
-#         db_constraint=False,
-#         db_column='corpid',
-#         null=False,
-#         on_delete=models.DO_NOTHING
-#     )
-#
-#     class Meta:
-#         unique_together = ('agentid', 'corp')
-#         verbose_name = verbose_name_plural = '企业应用信息'
+
+class Agent(model.BaseModel):
+    app_id = models.BigIntegerField('应用id', null=False, blank=False)
+    agent_type = models.IntegerField('类型', choices=(constants.AGENT_TYPE_CODE.get_list()),
+                                     default=constants.AGENT_TYPE_CODE.UNKNOWN, null=False, blank=False)
+    name = models.CharField('应用名称', max_length=256, null=False, blank=True)
+    logo_url = models.ImageField('应用头像', max_length=1024, null=False, blank=True)
+    description = models.CharField('应用详情', max_length=1024, null=False, blank=True)
+    suite = model.ForeignKey(
+        Suite,
+        to_field='suite_key',
+        verbose_name='所属套件',
+        db_constraint=False,
+        db_column='suite_key',
+        null=False,
+        on_delete=models.DO_NOTHING
+    )
+
+    class Meta:
+        unique_together = ('app_id', 'suite')
+        verbose_name = verbose_name_plural = '应用信息'
+
+
+class CorpAgent(model.BaseModel):
+    corp_agent_id = models.BigIntegerField('企业应用id', null=False, blank=False)
+    close = models.IntegerField('是否被禁用', choices=(constants.AGENT_CLOSE_CODE.get_list()),
+                                default=constants.AGENT_CLOSE_CODE.FORBIDDEN, null=False, blank=False)
+    agent = model.ForeignKey(
+        Agent,
+        to_field='id',
+        verbose_name='应用',
+        db_constraint=False,
+        db_column='app_id',
+        null=False,
+        on_delete=models.DO_NOTHING
+    )
+    corp = model.ForeignKey(
+        Corp,
+        to_field='corpid',
+        verbose_name='所属企业',
+        db_constraint=False,
+        db_column='corpid',
+        null=False,
+        on_delete=models.DO_NOTHING
+    )
+
+    class Meta:
+        unique_together = ('corp_agent_id', 'corp', 'agent')
+        verbose_name = verbose_name_plural = '企业应用信息'

@@ -1,14 +1,13 @@
 # encoding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-from apiview.views import ViewSite
+from apiview.views import ViewSite, fields
 from dingtalk.core.constants import SuitePushType
-from django.forms import fields
 from django.utils.encoding import force_text
 from rest_framework.response import Response
 
 from core import view
-from . import models, constants
+from . import models, constants, biz
 
 
 site = ViewSite(name='dingtalk', app_name='apps.dingtalk')
@@ -48,6 +47,9 @@ class SuiteCallback(view.APIBase):
                 corp.status = constants.CORP_STSTUS_CODE.AUTH.code
                 corp.save_or_update()
 
+                corp_info = client.get_auth_info(corpid)
+                biz.set_corp_info(corp, corp_info)
+
         elif event_type == SuitePushType.CHANGE_AUTH.value:
             pass
 
@@ -86,6 +88,26 @@ class SuiteCallback(view.APIBase):
             ('timestamp', fields.CharField(help_text='timestamp', required=True)),
             ('nonce', fields.CharField(help_text='nonce', required=True)),
             ('signature', fields.CharField(help_text='signature', required=True))
+        )
+
+
+@site
+class TestCorpInfo(view.AdminApi):
+
+    def get_context(self, request, *args, **kwargs):
+        suite = models.Suite.objects.filter(suite_key=request.params.suite_key).first()
+        if suite is None:
+            return None
+        client = suite.get_suite_client()
+        auth_info = client.get_auth_info(request.params.corp_id)
+        corp = models.Corp.objects.filter(corpid=request.params.corp_id, suite_id=suite.pk)
+        biz.set_corp_info(corp, auth_info)
+        return auth_info
+
+    class Meta:
+        param_fields = (
+            ('suite_key', fields.CharField(help_text='suite_key', required=True)),
+            ('corp_id', fields.CharField(help_text='corp_id', required=True))
         )
 
 
