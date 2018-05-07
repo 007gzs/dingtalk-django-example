@@ -212,7 +212,7 @@ KILL_CSRF = True
 
 STATIC_URL = '/static/'
 
-MEDIA_URL = '/hb2cdj/'
+MEDIA_URL = '/dj/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'www_static')
 
 STATICFILES_FINDERS = (
@@ -224,7 +224,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
 )
 
-DEFAULT_FILE_STORAGE = 'hb2c.storage.AliyunMediaStorage'
+DEFAULT_FILE_STORAGE = 'core.storage.AliyunMediaStorage'
 
 # celery settings
 
