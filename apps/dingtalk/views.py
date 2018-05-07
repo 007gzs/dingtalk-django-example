@@ -19,7 +19,7 @@ class SuiteCallback(view.APIBase):
 
     name = '授权事件接收URL'
 
-    def proc_message(self, suite_key, message, client):
+    def proc_message(self, suite_key, message):
         event_type = message.get('EventType', None)
         ret = 'success'
         if event_type in (SuitePushType.CHECK_CREATE_SUITE_URL, SuitePushType.CHECK_UPDATE_SUITE_URL):
@@ -68,13 +68,14 @@ class SuiteCallback(view.APIBase):
                          request.path, request.META['QUERY_STRING'], self.get_req_body(request))
         msg = self.get_req_body(request)
         assert msg
+        msg = force_text(msg)
         suite = models.Suite.objects.filter(suite_key=suite_key).first()
         assert suite
         client = suite.get_suite_client()
         message = client.parse_message(msg, request.params.signature, request.params.timestamp, request.params.nonce)
         self.logger.info("receive_ticket msg: %s" % force_text(message))
 
-        return Response(client.crypto.encrypt_message(self.proc_message(suite_key, message. client)))
+        return Response(client.crypto.encrypt_message(self.proc_message(suite_key, message)))
 
     class Meta:
         path = "suite/callback/(?P<suite_key>[0-9a-zA-Z]+)"
