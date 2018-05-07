@@ -3,6 +3,7 @@ PyMySQL
 redis
 hiredis
 gevent
+oss2
 Django
 django-redis-sessions
 django-redis-cache
