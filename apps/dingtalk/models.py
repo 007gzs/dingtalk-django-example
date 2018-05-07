@@ -58,7 +58,7 @@ class Corp(model.BaseModel):
 class Agent(model.BaseModel):
     appid = models.BigIntegerField('应用id', null=False, blank=False)
     agent_type = models.IntegerField('类型', choices=(constants.AGENT_TYPE_CODE.get_list()),
-                                     default=constants.AGENT_TYPE_CODE.UNKNOWN, null=False, blank=False)
+                                     default=constants.AGENT_TYPE_CODE.UNKNOWN.code, null=False, blank=False)
     name = models.CharField('应用名称', max_length=256, null=False, blank=True)
     logo_url = models.ImageField('应用头像', max_length=1024, null=False, blank=True)
     description = models.CharField('应用详情', max_length=1024, null=False, blank=True)
@@ -80,7 +80,7 @@ class Agent(model.BaseModel):
 class CorpAgent(model.BaseModel):
     agentid = models.BigIntegerField('企业应用id', null=False, blank=False)
     close = models.IntegerField('是否被禁用', choices=(constants.AGENT_CLOSE_CODE.get_list()),
-                                default=constants.AGENT_CLOSE_CODE.FORBIDDEN, null=False, blank=False)
+                                default=constants.AGENT_CLOSE_CODE.FORBIDDEN.code, null=False, blank=False)
     agent = model.ForeignKey(
         Agent,
         to_field='id',
