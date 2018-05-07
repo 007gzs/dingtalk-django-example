@@ -26,7 +26,7 @@ class SuiteCallback(view.APIBase):
             ret = message.get('Random', '')
         elif event_type == SuitePushType.TMP_AUTH_CODE.value:
             permanent_code_data = message.get('__permanent_code_data', {})
-            auth_corp_info = permanent_code_data.get('permanent_code_data', {})
+            auth_corp_info = permanent_code_data.get('auth_corp_info', {})
             permanent_code = permanent_code_data.get('permanent_code', None)
             ch_permanent_code = permanent_code_data.get('ch_permanent_code', None)
             corpid = auth_corp_info.get('corpid', None)
