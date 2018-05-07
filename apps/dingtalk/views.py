@@ -3,8 +3,8 @@ from __future__ import absolute_import, unicode_literals
 
 from apiview.views import ViewSite
 from dingtalk.core.constants import SuitePushType
+from django.forms import fields
 from django.utils.encoding import force_text
-from rest_framework import fields
 from rest_framework.response import Response
 
 from core import view
@@ -67,6 +67,7 @@ class SuiteCallback(view.APIBase):
         self.logger.info("receive_ticket msg path: %s query: %s, body: %s",
                          request.path, request.META['QUERY_STRING'], self.get_req_body(request))
         msg = self.get_req_body(request)
+        assert msg
         suite = models.Suite.objects.filter(suite_key=suite_key).first()
         assert suite
         client = suite.get_suite_client()
@@ -78,9 +79,9 @@ class SuiteCallback(view.APIBase):
     class Meta:
         path = "suite/callback/(?P<suite_key>[0-9a-zA-Z]+)"
         param_fields = (
-            ('timestamp', fields.CharField(help_text='timestamp')),
-            ('nonce', fields.CharField(help_text='nonce')),
-            ('signature', fields.CharField(help_text='signature'))
+            ('timestamp', fields.CharField(help_text='timestamp', required=True)),
+            ('nonce', fields.CharField(help_text='nonce', required=True)),
+            ('signature', fields.CharField(help_text='signature', required=True))
         )
 
 

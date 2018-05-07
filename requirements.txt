@@ -9,4 +9,5 @@ django-redis-cache
 djangorestframework
 django-restframework-apiview
 celery
+pycrypto
 dingtalk-sdk
