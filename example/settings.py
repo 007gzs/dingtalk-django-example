@@ -212,6 +212,60 @@ KILL_CSRF = True
 
 STATIC_URL = '/static/'
 
+MEDIA_URL = '/hb2cdj/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'www_static')
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+)
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static/'),
+)
+
+DEFAULT_FILE_STORAGE = 'hb2c.storage.AliyunMediaStorage'
+
+# celery settings
+
+CELERY_BROKER_URL = 'redis://%s%s@%s:%s/%d' % (
+    ':' if ls.REDIS_PASSWORD else '',
+    ls.REDIS_PASSWORD,
+    ls.REDIS_HOST,
+    ls.REDIS_PORT,
+    ls.REDIS_CELERY_DB)
+
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+
+# 任务执行最长时间20分钟
+CELERY_TASK_SOFT_TIME_LIMIT = 1200
+CELERY_TASK_TIME_LIMIT = 1200
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+
+# 定义执行队列
+CELERY_TASK_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    Queue('crontab', Exchange('crontab'), routing_key='crontab'),
+    Queue('async', Exchange('async'), routing_key='async')
+)
+
+# 制定特定任务路由到特定执行队列
+CELERY_TASK_ROUTES = {
+    'example.celery._async_call': {'queue': 'async', 'routing_key': 'async'},
+}
+
+CELERY_TASK_ANNOTATIONS = {'*': celery_annotations_dict}
+
+# celery settings end
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -264,46 +318,6 @@ LOGGING = {
         'propagate': True
     }
 }
-
-# celery settings
-
-CELERY_BROKER_URL = 'redis://%s%s@%s:%s/%d' % (
-    ':' if ls.REDIS_PASSWORD else '',
-    ls.REDIS_PASSWORD,
-    ls.REDIS_HOST,
-    ls.REDIS_PORT,
-    ls.REDIS_CELERY_DB)
-
-CELERY_RESULT_BACKEND = CELERY_BROKER_URL
-
-CELERY_WORKER_HIJACK_ROOT_LOGGER = False
-
-# 任务执行最长时间20分钟
-CELERY_TASK_SOFT_TIME_LIMIT = 1200
-CELERY_TASK_TIME_LIMIT = 1200
-
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_TASK_DEFAULT_QUEUE = 'default'
-
-CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_RESULT_SERIALIZER = 'pickle'
-CELERY_ACCEPT_CONTENT = ['pickle', 'json']
-
-# 定义执行队列
-CELERY_TASK_QUEUES = (
-    Queue('default', Exchange('default'), routing_key='default'),
-    Queue('crontab', Exchange('crontab'), routing_key='crontab'),
-    Queue('async', Exchange('async'), routing_key='async')
-)
-
-# 制定特定任务路由到特定执行队列
-CELERY_TASK_ROUTES = {
-    'example.celery._async_call': {'queue': 'async', 'routing_key': 'async'},
-}
-
-CELERY_TASK_ANNOTATIONS = {'*': celery_annotations_dict}
-
-# celery settings end
 
 ERROR_CODE_DEFINE = (
     ('ERR_AUTH_NOLOGIN',            10001,  '请先登陆'),
