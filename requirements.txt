@@ -1,0 +1,12 @@
+Pillow
+PyMySQL
+redis
+hiredis
+gevent
+Django
+django-redis-sessions
+django-redis-cache
+djangorestframework
+django-restframework-apiview
+celery
+requests
