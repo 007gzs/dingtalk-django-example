@@ -19,7 +19,7 @@ class SuiteCallback(view.APIBase):
 
     name = '授权事件接收URL'
 
-    def proc_message(self, suite_key, message):
+    def proc_message(self, suite_key, message, client):
         event_type = message.get('EventType', None)
         ret = 'success'
         if event_type in (SuitePushType.CHECK_CREATE_SUITE_URL.value, SuitePushType.CHECK_UPDATE_SUITE_URL.value):
@@ -31,9 +31,11 @@ class SuiteCallback(view.APIBase):
             ch_permanent_code = permanent_code_data.get('ch_permanent_code', None)
             corpid = auth_corp_info.get('corpid', None)
             corp_name = auth_corp_info.get('corp_name', None)
+
             if permanent_code is None or corpid is None or corp_name is None:
                 ret = 'fail'
             else:
+                client.activate_suite(corpid)
                 corp = models.Corp.objects.get_all_queryset().filter(suite_id=suite_key, corpid=corpid).first()
                 if corp is None:
                     corp = models.Corp()
@@ -45,6 +47,7 @@ class SuiteCallback(view.APIBase):
                 corp.corp_name = corp_name
                 corp.status = constants.CORP_STSTUS_CODE.AUTH.code
                 corp.save_or_update()
+
         elif event_type == SuitePushType.CHANGE_AUTH.value:
             pass
 
@@ -75,7 +78,7 @@ class SuiteCallback(view.APIBase):
         message = client.parse_message(msg, request.params.signature, request.params.timestamp, request.params.nonce)
         self.logger.info("receive_ticket msg: %s" % force_text(message))
 
-        return Response(client.crypto.encrypt_message(self.proc_message(suite_key, message)))
+        return Response(client.crypto.encrypt_message(self.proc_message(suite_key, message, client)))
 
     class Meta:
         path = "suite/callback/(?P<suite_key>[0-9a-zA-Z]+)"

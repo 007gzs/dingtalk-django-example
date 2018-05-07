@@ -251,6 +251,11 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': False,
+        },
+        'dingtalk': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+            'propagate': False,
         }
     },
     'root': {
