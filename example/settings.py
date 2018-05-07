@@ -247,7 +247,7 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False
         },
-        'httpinfo': {
+        'apiview': {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': False,

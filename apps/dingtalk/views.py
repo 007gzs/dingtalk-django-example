@@ -22,9 +22,9 @@ class SuiteCallback(view.APIBase):
     def proc_message(self, suite_key, message):
         event_type = message.get('EventType', None)
         ret = 'success'
-        if event_type in (SuitePushType.CHECK_CREATE_SUITE_URL, SuitePushType.CHECK_UPDATE_SUITE_URL):
+        if event_type in (SuitePushType.CHECK_CREATE_SUITE_URL.value, SuitePushType.CHECK_UPDATE_SUITE_URL.value):
             ret = message.get('Random', '')
-        elif event_type == SuitePushType.TMP_AUTH_CODE:
+        elif event_type == SuitePushType.TMP_AUTH_CODE.value:
             permanent_code_data = message.get('__permanent_code_data', {})
             auth_corp_info = permanent_code_data.get('permanent_code_data', {})
             permanent_code = permanent_code_data.get('permanent_code', None)
@@ -45,10 +45,10 @@ class SuiteCallback(view.APIBase):
                 corp.corp_name = corp_name
                 corp.status = constants.CORP_STSTUS_CODE.AUTH.code
                 corp.save_or_update()
-        elif event_type == SuitePushType.CHANGE_AUTH:
+        elif event_type == SuitePushType.CHANGE_AUTH.value:
             pass
 
-        elif event_type == SuitePushType.SUITE_RELIEVE:
+        elif event_type == SuitePushType.SUITE_RELIEVE.value:
             corp_id = message.get('AuthCorpId', None)
             if corp_id is None:
                 ret = 'fail'
@@ -57,9 +57,9 @@ class SuiteCallback(view.APIBase):
                 if corp is not None:
                     corp.status = constants.CORP_STSTUS_CODE.NO.code
                     corp.save_changed()
-        elif event_type == SuitePushType.CHECK_SUITE_LICENSE_CODE:
+        elif event_type == SuitePushType.CHECK_SUITE_LICENSE_CODE.value:
             pass
-        elif event_type != SuitePushType.SUITE_TICKET:
+        elif event_type != SuitePushType.SUITE_TICKET.value:
             self.logger.warning("unkown event_type : %s %s", suite_key, message)
         return ret
 
