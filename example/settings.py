@@ -251,12 +251,12 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': False,
-        },
-        '': {
-            'handlers': ['console', ],
-            'level': 'INFO',
-            'propagate': True
         }
+    },
+    'root': {
+        'handlers': ['console', ],
+        'level': 'INFO',
+        'propagate': True
     }
 }
 
