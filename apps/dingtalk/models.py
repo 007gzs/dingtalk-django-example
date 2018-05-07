@@ -24,8 +24,8 @@ class Suite(model.BaseModel):
 
 class Corp(model.BaseModel):
     corpid = models.CharField('授权方企业id', max_length=128, unique=True)
-    status = models.IntegerField('授权状态', choices=(constants.CORP_AUTH_LEVEL_CODE.get_list()),
-                                 default=constants.CORP_AUTH_LEVEL_CODE.NO.code, null=False, blank=True)
+    status = models.IntegerField('授权状态', choices=(constants.CORP_STSTUS_CODE.get_list()),
+                                 default=constants.CORP_STSTUS_CODE.NO.code, null=False, blank=True)
     corp_name = models.CharField('授权方企业名称', max_length=256, null=False, blank=True)
     invite_code = models.CharField('邀请码', max_length=256, null=False, blank=True)
     industry = models.CharField('企业所属行业', max_length=256, null=False, blank=True)
