@@ -51,7 +51,7 @@ def set_agent(corp_model, agents, agent_type):
         a.name = agent['agent_name']
         a.logo_url = agent['logo_url']
         a.save_or_update()
-        ca = models.CorpAgent.objects.get_all_queryset().filter(corp_agent_id=agent['agent_id'],
+        ca = models.CorpAgent.objects.get_all_queryset().filter(agentid=agent['agent_id'],
                                                                 agent_id=a.pk, corp_id=corp_model.pk).first()
         if ca is None:
             ca = models.CorpAgent()
