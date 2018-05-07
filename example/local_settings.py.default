@@ -1,0 +1,16 @@
+# encoding: utf-8
+from __future__ import absolute_import, unicode_literals
+
+REDIS_HOST = '127.0.0.1'
+REDIS_PASSWORD = ''
+REDIS_PORT = '6379'
+REDIS_CACHE_DB = 5
+REDIS_SESSION_DB = 6
+REDIS_CELERY_DB = 7
+REDIS_DINGTALK_DB = 8
+
+MYSQL_HOST = '127.0.0.1'
+MYSQL_PORT = '3306'
+MYSQL_DBNAME = 'dbname'
+MYSQL_USERNAME = 'root'
+MYSQL_PASSWORD = ''
