@@ -100,7 +100,7 @@ class TestCorpInfo(view.AdminApi):
             return None
         client = suite.get_suite_client()
         auth_info = client.get_auth_info(request.params.corp_id)
-        corp = models.Corp.objects.filter(corpid=request.params.corp_id, suite_id=suite.pk)
+        corp = models.Corp.objects.filter(corpid=request.params.corp_id, suite_id=suite.pk).first()
         biz.set_corp_info(corp, auth_info)
         return auth_info
 
