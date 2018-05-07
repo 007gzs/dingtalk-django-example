@@ -42,10 +42,10 @@ class ISVClient(isv.ISVClient):
 
 def set_agent(corp_model, agents, agent_type):
     for agent in agents:
-        a = models.Agent.objects.get_all_queryset().filter(app_id=agent['appid'], suite_id=corp_model.suite_id).first()
+        a = models.Agent.objects.get_all_queryset().filter(appid=agent['appid'], suite_id=corp_model.suite_id).first()
         if a is None:
             a = models.Agent()
-            a.app_id = agent['appid']
+            a.appid = agent['appid']
             a.suite_id = corp_model.suite_id
             a.agent_type = agent_type
         a.name = agent['agent_name']
@@ -55,7 +55,7 @@ def set_agent(corp_model, agents, agent_type):
                                                                 agent_id=a.pk, corp_id=corp_model.pk).first()
         if ca is None:
             ca = models.CorpAgent()
-            ca.corp_agent_id = agent['agent_id']
+            ca.agentid = agent['agentid']
             ca.agent_id = a.pk
             ca.corp_id = corp_model.pk
             ca.save(force_insert=True)

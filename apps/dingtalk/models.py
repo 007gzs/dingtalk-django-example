@@ -56,7 +56,7 @@ class Corp(model.BaseModel):
 
 
 class Agent(model.BaseModel):
-    app_id = models.BigIntegerField('应用id', null=False, blank=False)
+    appid = models.BigIntegerField('应用id', null=False, blank=False)
     agent_type = models.IntegerField('类型', choices=(constants.AGENT_TYPE_CODE.get_list()),
                                      default=constants.AGENT_TYPE_CODE.UNKNOWN, null=False, blank=False)
     name = models.CharField('应用名称', max_length=256, null=False, blank=True)
@@ -73,12 +73,12 @@ class Agent(model.BaseModel):
     )
 
     class Meta:
-        unique_together = ('app_id', 'suite')
+        unique_together = ('appid', 'suite')
         verbose_name = verbose_name_plural = '应用信息'
 
 
 class CorpAgent(model.BaseModel):
-    corp_agent_id = models.BigIntegerField('企业应用id', null=False, blank=False)
+    agentid = models.BigIntegerField('企业应用id', null=False, blank=False)
     close = models.IntegerField('是否被禁用', choices=(constants.AGENT_CLOSE_CODE.get_list()),
                                 default=constants.AGENT_CLOSE_CODE.FORBIDDEN, null=False, blank=False)
     agent = model.ForeignKey(
@@ -86,7 +86,7 @@ class CorpAgent(model.BaseModel):
         to_field='id',
         verbose_name='应用',
         db_constraint=False,
-        db_column='app_id',
+        db_column='agent_id',
         null=False,
         on_delete=models.DO_NOTHING
     )
@@ -101,5 +101,5 @@ class CorpAgent(model.BaseModel):
     )
 
     class Meta:
-        unique_together = ('corp_agent_id', 'corp', 'agent')
+        unique_together = ('agentid', 'corp', 'agent')
         verbose_name = verbose_name_plural = '企业应用信息'
