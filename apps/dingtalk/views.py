@@ -93,11 +93,7 @@ class SuiteCallback(view.APIBase):
 class TestCorpInfo(view.AdminApi):
 
     def get_context(self, request, *args, **kwargs):
-        # ret = biz.sync_corp(request.params.corp_pk)
-        corp_agent = models.CorpAgent.objects.filter(pk=1).first()
-        corp = models.Corp.get_obj_by_unique_key_from_cache(corpid=corp_agent.corp_id)
-        agent = corp_agent.agent
-        return None
+        return biz.sync_corp(request.params.corp_pk)
 
     class Meta:
         param_fields = (
