@@ -55,6 +55,7 @@ class SuiteCallback(view.APIBase):
                     corp = models.Corp()
                     corp.suite_id = suite_key
                     corp.corpid = corpid
+                if corp.status == constants.CORP_STSTUS_CODE.NO.code:
                     corp.status = constants.CORP_STSTUS_CODE.AUTH.code
                 corp.permanent_code = permanent_code
                 if ch_permanent_code is not None:
