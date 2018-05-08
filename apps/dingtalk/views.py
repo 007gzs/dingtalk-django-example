@@ -129,6 +129,7 @@ class CorpAgentBase(view.APIBase):
         raise NotImplementedError
 
     class Meta:
+        path = '/'
         param_fields = (
             ('corp_id', fields.CharField(help_text='corp_id', required=True)),
             ('app_id', fields.IntegerField(help_text='app_id', required=True)),

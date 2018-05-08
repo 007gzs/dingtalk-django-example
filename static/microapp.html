@@ -31,7 +31,7 @@
         var nonce = "";
         var timeStamp = "";
         var agentId = "";
-        $.post(
+        $.ajax(
           "/api/dingtalk/js/config",
           {
             "corp_id": corpId,
