@@ -23,7 +23,7 @@ class Suite(model.BaseModel):
 
 
 class Corp(model.BaseModel):
-    corpid = models.CharField('授权方企业id', max_length=128, unique=True)
+    corpid = models.CharField('授权方企业id', max_length=128)
     status = models.IntegerField('授权状态', choices=(constants.CORP_STSTUS_CODE.get_list()),
                                  default=constants.CORP_STSTUS_CODE.NO.code, null=False, blank=True)
     corp_name = models.CharField('授权方企业名称', max_length=256, null=False, blank=True)
@@ -59,7 +59,7 @@ class Corp(model.BaseModel):
 
 
 class Agent(model.BaseModel):
-    appid = models.BigIntegerField('应用id', null=False, blank=False)
+    appid = models.BigIntegerField('应用id', null=False, blank=False, unique=True)
     agent_type = models.IntegerField('类型', choices=(constants.AGENT_TYPE_CODE.get_list()),
                                      default=constants.AGENT_TYPE_CODE.UNKNOWN.code, null=False, blank=False)
     name = models.CharField('应用名称', max_length=256, null=False, blank=True)
@@ -86,10 +86,10 @@ class CorpAgent(model.BaseModel):
                                 default=constants.AGENT_CLOSE_CODE.FORBIDDEN.code, null=False, blank=False)
     agent = model.ForeignKey(
         Agent,
-        to_field='id',
+        to_field='appid',
         verbose_name='应用',
         db_constraint=False,
-        db_column='agent_id',
+        db_column='appid',
         null=False,
         on_delete=models.DO_NOTHING
     )
@@ -102,6 +102,14 @@ class CorpAgent(model.BaseModel):
         null=False,
         on_delete=models.DO_NOTHING
     )
+
+    def get_client(self):
+        corp_client = None
+        if self.agent.agent_type == constants.AGENT_TYPE_CODE.MICRO.code:
+            corp_client = self.agent.suite.get_suite_client().get_dingtalk_client(self.corp.corpid)
+        elif self.agent.agent_type == constants.AGENT_TYPE_CODE.CHANNEL.code:
+            corp_client = self.agent.suite.get_suite_client().get_channel_client(self.corp.corpid)
+        return corp_client
 
     def __str__(self):
         return '%s - %s' % (self.corp, self.agent)

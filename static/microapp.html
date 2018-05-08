@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-cmn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta name="renderer" content="webkit"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="format-detection" content="telephone=no"/>
+
+    <title>microapp授权test</title>
+    <script src="http://g.alicdn.com/dingding/open-develop/1.6.9/dingtalk.js"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+      var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+        for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+          }
+        }
+      };
+      $(document).ready(function () {
+        var url = window.location.href;
+        var corpId = getUrlParameter('corpId');
+        var appId = getUrlParameter('appId');
+        var signature = "";
+        var nonce = "";
+        var timeStamp = "";
+        var agentId = "";
+        $.post(
+          "/api/dingtalk/js/config",
+          {
+            "corp_id": corpId,
+            "app_id": appId
+          },
+          function (result) {
+            $('#url-p').html(url);
+            console.log("result", result);
+            if(result.code !== 0){
+                return
+            }
+            var config = result.data;
+            config["jsApiList"] = ['device.notification.confirm',
+                'device.notification.alert',
+                'device.notification.prompt',
+                'biz.chat.chooseConversation',
+                'biz.ding.post'];
+            dd.config(config);
+            dd.ready(function () {
+              $('#conf-result').html('配置成功！');
+              console.log('dd ready');
+              document.addEventListener('pause', function () {
+                console.log('pause');
+              });
+              document.addEventListener('resume', function () {
+                console.log('resume');
+              });
+              $('#auth-btn').on('click', function () {
+                dd.runtime.permission.requestAuthCode({
+                  corpId: corpId, //企业id
+                  onSuccess: function (info) {
+                    console.log('auth result', info);
+                    $('#auth-result').html('免登授权成功！');
+                    $('#user-result').html('获取用户信息...');
+                    $.ajax({
+                      url: '/api/dingtalk/user/info',
+                      type: "POST",
+                      data: {
+                        "code": info.code,
+                        "corp_id": corpId
+                      },
+                      timeout: 900,
+                      success: function (data, status, xhr) {
+                        if (data.code === 0) {
+                          $('#user-result').html('userid: ' + data.data.userId);
+                          dd.userid = data.data.userId;
+                        }
+                        else {
+                          $('#user-result').html('用户信息获取失败: ' + data.message);
+                        }
+                      },
+                      error: function (xhr, errorType, error) {
+                        $('#user-result').html('用户信息获取失败: ' + xhr + " type:" +
+                          errorType + " error: " + error);
+                        console.log(errorType + ', ' + error);
+                      }
+                    });
+                  },
+                  onFail: function (err) {
+                    $('#auth-result').html('免登授权失败：' + err);
+                    console.log('requestAuthCode fail: ' + JSON.stringify(err));
+                  }
+                });
+              });
+              $('#notify-btn').on('click', function () {
+                dd.device.notification.alert({
+                  message: 'dd.device.notification.alert',
+                  title: 'This is title',
+                  buttonName: 'button',
+                  onSuccess: function (data) {
+                    console.log('onSuccess: ', data);
+                  },
+                  onFail: function (err) {
+                    console.log('fail: ', err);
+                  }
+                });
+              });
+            });
+            dd.error(function (err) {
+              $('#conf-result').html('配置失败：' + err);
+              console.log('dd error: ', err);
+            });
+          });
+      });
+    </script>
+</head>
+<body>
+<p id="url-p">
+</p>
+<p id="conf-result">
+    配置中...
+</p>
+<button id="auth-btn" class="btn btn-block btn-default">获取免登鉴权</button>
+<p id="auth-result"></p>
+<p id="user-result"></p>
+
+<button id="notify-btn" class="btn btn-block btn-default">显示通知</button>
+
+</body>
+</html>
