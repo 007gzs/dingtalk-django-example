@@ -1,6 +1,8 @@
 # encoding: utf-8
 from __future__ import absolute_import, unicode_literals
 
+from apiview.err_code import ErrCode
+from apiview.exceptions import CustomError
 from django.db import models
 
 from core import model
@@ -49,6 +51,16 @@ class Corp(model.BaseModel):
         null=False,
         on_delete=models.DO_NOTHING
     )
+
+    def get_dingtail_client(self):
+        if self.status != constants.CORP_STSTUS_CODE.ACTIVE.code or not self.permanent_code:
+            raise CustomError(ErrCode.ERR_COMMON_PERMISSION)
+        return self.suite.get_suite_client().get_dingtalk_client(self.corpid)
+
+    def get_channel_client(self):
+        if self.status != constants.CORP_STSTUS_CODE.ACTIVE.code or not self.ch_permanent_code:
+            raise CustomError(ErrCode.ERR_COMMON_PERMISSION)
+        return self.suite.get_suite_client().get_channel_client(self.corpid)
 
     def __str__(self):
         return self.corp_name
@@ -106,9 +118,9 @@ class CorpAgent(model.BaseModel):
     def get_client(self):
         corp_client = None
         if self.agent.agent_type == constants.AGENT_TYPE_CODE.MICRO.code:
-            corp_client = self.agent.suite.get_suite_client().get_dingtalk_client(self.corp.corpid)
+            corp_client = self.corp.get_dingtail_client()
         elif self.agent.agent_type == constants.AGENT_TYPE_CODE.CHANNEL.code:
-            corp_client = self.agent.suite.get_suite_client().get_channel_client(self.corp.corpid)
+            corp_client = self.corp.get_channel_client()
         return corp_client
 
     def __str__(self):
@@ -117,3 +129,49 @@ class CorpAgent(model.BaseModel):
     class Meta:
         unique_together = ('agentid', 'corp', 'agent')
         verbose_name = verbose_name_plural = '企业应用信息'
+
+
+class User(model.BaseModel):
+    dingid = models.CharField('钉钉Id', max_length=128, null=False, blank=False, unique=True)
+    name = models.CharField('成员名称', max_length=128, null=False, blank=False, default='')
+    active = models.BooleanField('是否已经激活', null=False, blank=False, default=False)
+    avatar = models.ImageField('头像', max_length=1024, null=False, blank=True, default='')
+    last_deviceid = models.CharField('最后使用设备ID', max_length=128, null=False, blank=True, default='')
+
+    class Meta:
+        verbose_name = verbose_name_plural = '用户信息'
+
+
+class CorpUser(model.BaseModel):
+    userid = models.CharField('员工唯一标识ID', max_length=128, null=False, blank=False)
+    openid = models.CharField('在本 服务窗运营服务商 范围内,唯一标识关注者身份的id', max_length=128, null=False, blank=False)
+    unionid = models.CharField('在当前isv全局范围内唯一标识一个用户的身份', max_length=128, null=False, blank=False)
+    is_admin = models.BooleanField('是否为企业的管理员', null=False, blank=False, default=False)
+    is_senior = models.CharField('是否是高管', null=False, blank=False, default=False)
+    is_boss = models.BooleanField('是否为企业的老板', null=False, blank=False, default=False)
+    position = models.CharField('职位信息', max_length=256, null=False, blank=True)
+    hired_date = models.DateTimeField('入职时间', null=True, blank=True)
+    jobnumber = models.CharField('员工工号', max_length=256, null=False, blank=True)
+    state_code = models.CharField('手机号码区号', max_length=32, null=False, blank=True)
+    corp = model.ForeignKey(
+        Corp,
+        to_field='id',
+        verbose_name='所属企业',
+        db_constraint=False,
+        db_column='corp_id',
+        null=False,
+        on_delete=models.DO_NOTHING
+    )
+    user = model.ForeignKey(
+        User,
+        to_field='dingid',
+        verbose_name='用户',
+        db_constraint=False,
+        db_column='dingid',
+        null=False,
+        on_delete=models.DO_NOTHING
+    )
+
+    class Meta:
+        unique_together = ('userid', 'corp')
+        verbose_name = verbose_name_plural = '企业用户信息'

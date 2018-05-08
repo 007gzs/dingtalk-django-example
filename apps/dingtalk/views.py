@@ -4,14 +4,13 @@ from __future__ import absolute_import, unicode_literals
 from apiview.err_code import ErrCode
 from apiview.exceptions import CustomError
 from apiview.views import ViewSite, fields
-from dingtalk.client.channel import ChannelClient
 from dingtalk.core.constants import SuitePushType
 from django.utils.encoding import force_text
 from rest_framework.response import Response
 
-from core import view
+from core import view, constants as core_constants
 from example import celery
-from . import models, constants, biz, cache
+from . import models, constants, biz, cache, serializer
 
 
 site = ViewSite(name='dingtalk', app_name='apps.dingtalk')
@@ -76,6 +75,8 @@ class SuiteCallback(view.APIBase):
                 if corp is not None:
                     corp.status = constants.CORP_STSTUS_CODE.NO.code
                     corp.save_changed()
+                    for corp_agent in models.CorpAgent.objects.filter(corp_id=corp.pk):
+                        corp_agent.delete()
         elif event_type == SuitePushType.CHECK_SUITE_LICENSE_CODE.value:
             pass
         elif event_type != SuitePushType.SUITE_TICKET.value:
@@ -110,7 +111,10 @@ class CorpAgentBase(view.APIBase):
     def get_corp_agent_info(self, request):
         corp_agent_id = cache.CorpAgentCache.get("%s|||%s" % (request.params.app_id, request.params.corp_id))
         if corp_agent_id is not None:
-            return models.CorpAgent.get_obj_by_pk_from_cache(corp_agent_id)
+            corp_agent = models.CorpAgent.get_obj_by_pk_from_cache(corp_agent_id)
+            if corp_agent is not None and corp_agent.delete_status == core_constants.DELETE_CODE.NORMAL.code:
+                return corp_agent
+            cache.CorpAgentCache.delete("%s|||%s" % (request.params.app_id, request.params.corp_id))
         agent = models.Agent.get_obj_by_unique_key_from_cache(appid=request.params.app_id)
         if agent is None:
             raise CustomError(ErrCode.ERR_COMMON_BAD_PARAM)
@@ -122,7 +126,7 @@ class CorpAgentBase(view.APIBase):
         corp_agent = models.CorpAgent.objects.filter(agent_id=agent.appid, corp_id=corp.pk).first()
         if corp_agent is None:
             raise CustomError(ErrCode.ERR_COMMON_BAD_PARAM)
-        cache.CorpAgentCache.set("%s|||%s" % (request.params.app_id, request.params.corp_id), corp_agent)
+        cache.CorpAgentCache.set("%s|||%s" % (request.params.app_id, request.params.corp_id), corp_agent.pk)
         return corp_agent
 
     def get_context(self, request, *args, **kwargs):
@@ -159,10 +163,13 @@ class UserInfo(CorpAgentBase):
 
         corp_agent = self.get_corp_agent_info(request)
         client = corp_agent.get_client()
-        if client is None or not isinstance(client, ChannelClient):
-            raise CustomError(ErrCode.ERR_COMMON_PERMISSION)
-        ret = client.get_by_code(request.params.code)
-        return ret
+        user_info = client.user.getuserinfo(request.params.code)
+        corp_user = biz.get_corp_user(user_info['userid'], corp_agent.corp)
+        assert corp_user
+        if corp_user.user.last_deviceid != user_info['deviceId']:
+            corp_user.user.last_deviceid = user_info['deviceId']
+            corp_user.user.save_changed()
+        return serializer.CorpSerializer(corp_user).data
 
     class Meta:
         param_fields = (

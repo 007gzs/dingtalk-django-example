@@ -56,7 +56,7 @@ class BaseModel(model.BaseModel):
 
     def delete(self, using=None, keep_parents=False):
         self.delete_status = constants.DELETE_CODE.DELETED.code
-        return super(BaseModel, self).delete(using=using, keep_parents=keep_parents)
+        return self.save(using=using, force_update=True, update_fields=['delete_status', ])
 
     def save_or_update(self):
         if self.pk is None:

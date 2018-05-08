@@ -2,6 +2,7 @@
 from __future__ import absolute_import, unicode_literals
 
 import redis
+from apiview import utility
 from dingtalk.storage.kvstorage import KvStorage
 from django.conf import settings
 from dingtalk.client import isv
@@ -85,3 +86,39 @@ def sync_corp(corppk):
         corp.status = constants.CORP_STSTUS_CODE.ACTIVE.code
     corp_info = client.get_auth_info(corp.corpid)
     set_corp_info(corp, corp_info)
+    return corp_info
+
+def refresh_corp_user(user_id, corp):
+    client = corp.get_dingtail_client()
+    ret = client.user.get(user_id)
+    user = models.User.get_obj_by_unique_key_from_cache(dingid=ret['dingId'])
+    if user is None:
+        user = models.User()
+        user.dingid = ret['dingId']
+    user.name = ret['name']
+    user.active = ret['active']
+    user.avatar = ret['avatar']
+    user.save_or_update()
+    corp_user = models.CorpUser.objects.filter(userid=user_id, corp_id=corp.pk).first()
+    if corp_user is None:
+        corp_user = models.CorpUser()
+        corp_user.userid = user_id
+        corp_user.corp = corp
+    corp_user.user = user
+    corp_user.hired_date = utility.timestamp2datetime(ret['hiredDate'] / 1000)
+    keys = {'is_admin': 'isAdmin', 'is_senior': 'isSenior', 'is_boss': 'isBoss', 'state_code': 'stateCode',
+            'openid': 'openid', 'unionid': 'unionid', 'position': 'position', 'jobnumber': 'jobnumber'}
+    for k, v in keys.items():
+        value = ret.get(v, None)
+        if value is not None:
+            setattr(corp_user, k, value)
+    corp_user.save_or_update()
+
+    return corp_user
+
+
+def get_corp_user(user_id, corp):
+    corp_user = models.CorpUser.objects.filter(userid=user_id, corp_id=corp.pk).first()
+    if corp_user is not None:
+        return corp_user
+    return refresh_corp_user(user_id, corp)

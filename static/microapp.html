@@ -70,7 +70,8 @@
                       url: '/api/dingtalk/user/info',
                       data: {
                         "code": info.code,
-                        "corp_id": corpId
+                        "corp_id": corpId,
+                        "app_id": appId
                       },
                       timeout: 900,
                       success: function (data, status, xhr) {
@@ -90,7 +91,7 @@
                     });
                   },
                   onFail: function (err) {
-                    $('#auth-result').html('免登授权失败：' + err);
+                    $('#auth-result').html('免登授权失败：' + JSON.stringify(err));
                     console.log('requestAuthCode fail: ' + JSON.stringify(err));
                   }
                 });
@@ -110,7 +111,7 @@
               });
             });
             dd.error(function (err) {
-              $('#conf-result').html('配置失败：' + err);
+              $('#conf-result').html('配置失败：' + JSON.stringify(err));
               console.log('dd error: ', err);
             });
           });
