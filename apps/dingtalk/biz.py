@@ -106,7 +106,9 @@ def refresh_corp_user(user_id, corp):
         corp_user.userid = user_id
         corp_user.corp = corp
     corp_user.user = user
-    corp_user.hired_date = utility.timestamp2datetime(ret['hiredDate'] / 1000)
+    hired_date = ret.get('hiredDate', None)
+    if hired_date is not None:
+        corp_user.hired_date = utility.timestamp2datetime(hired_date / 1000)
     keys = {'is_admin': 'isAdmin', 'is_senior': 'isSenior', 'is_boss': 'isBoss', 'state_code': 'stateCode',
             'openid': 'openid', 'unionid': 'unionid', 'position': 'position', 'jobnumber': 'jobnumber'}
     for k, v in keys.items():

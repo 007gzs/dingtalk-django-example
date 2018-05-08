@@ -65,7 +65,7 @@
                   onSuccess: function (info) {
                     console.log('auth result', info);
                     $('#auth-result').html('免登授权成功！');
-                    $('#user-result').html('获取用户信息...');
+                    $('#user-result').html('获取用户信息...'+info.code);
                     $.post({
                       url: '/api/dingtalk/user/info',
                       data: {
