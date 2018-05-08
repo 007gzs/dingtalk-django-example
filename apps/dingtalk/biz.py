@@ -88,6 +88,7 @@ def sync_corp(corppk):
     set_corp_info(corp, corp_info)
     return corp_info
 
+
 def refresh_corp_user(user_id, corp):
     client = corp.get_dingtail_client()
     ret = client.user.get(user_id)

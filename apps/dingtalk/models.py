@@ -147,7 +147,7 @@ class CorpUser(model.BaseModel):
     openid = models.CharField('在本 服务窗运营服务商 范围内,唯一标识关注者身份的id', max_length=128, null=False, blank=False)
     unionid = models.CharField('在当前isv全局范围内唯一标识一个用户的身份', max_length=128, null=False, blank=False)
     is_admin = models.BooleanField('是否为企业的管理员', null=False, blank=False, default=False)
-    is_senior = models.CharField('是否是高管', null=False, blank=False, default=False)
+    is_senior = models.BooleanField('是否是高管', null=False, blank=False, default=False)
     is_boss = models.BooleanField('是否为企业的老板', null=False, blank=False, default=False)
     position = models.CharField('职位信息', max_length=256, null=False, blank=True)
     hired_date = models.DateTimeField('入职时间', null=True, blank=True)
