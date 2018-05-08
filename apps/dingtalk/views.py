@@ -169,7 +169,7 @@ class UserInfo(CorpAgentBase):
         if corp_user.user.last_deviceid != user_info['deviceId']:
             corp_user.user.last_deviceid = user_info['deviceId']
             corp_user.user.save_changed()
-        return serializer.CorpSerializer(corp_user).data
+        return serializer.CorpUserSerializer(corp_user).data
 
     class Meta:
         param_fields = (
