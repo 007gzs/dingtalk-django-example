@@ -115,7 +115,7 @@ class CorpAgentBase(view.APIBase):
         if agent is None:
             raise CustomError(ErrCode.ERR_COMMON_BAD_PARAM)
         suite = agent.suite
-        corp = models.Corp.objects.filter(corpid=request.params.corp_id, suite_id=suite.pk).first()
+        corp = models.Corp.objects.filter(corpid=request.params.corp_id, suite_id=suite.suite_key).first()
         if corp is None:
             raise CustomError(ErrCode.ERR_COMMON_BAD_PARAM)
 

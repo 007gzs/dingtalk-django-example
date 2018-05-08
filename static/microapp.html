@@ -31,7 +31,7 @@
         var nonce = "";
         var timeStamp = "";
         var agentId = "";
-        $.ajax(
+        $.post(
           "/api/dingtalk/js/config",
           {
             "corp_id": corpId,
@@ -66,9 +66,8 @@
                     console.log('auth result', info);
                     $('#auth-result').html('免登授权成功！');
                     $('#user-result').html('获取用户信息...');
-                    $.ajax({
+                    $.post({
                       url: '/api/dingtalk/user/info',
-                      type: "POST",
                       data: {
                         "code": info.code,
                         "corp_id": corpId
