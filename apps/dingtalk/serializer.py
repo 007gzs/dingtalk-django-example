@@ -28,4 +28,4 @@ class CorpUserSerializer(serializer.BaseSerializer):
     class Meta:
         model = models.CorpUser
         fields = ('id', 'userid', 'openid', 'unionid', 'is_admin', 'is_senior', 'is_boss',
-                  'position', 'hired_date','jobnumber', 'state_code', 'corp', 'user')
+                  'position', 'hired_date', 'jobnumber', 'state_code', 'corp', 'user')

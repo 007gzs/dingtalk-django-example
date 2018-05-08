@@ -66,29 +66,18 @@
                     console.log('auth result', info);
                     $('#auth-result').html('免登授权成功！');
                     $('#user-result').html('获取用户信息...'+info.code);
-                    $.post({
-                      url: '/api/dingtalk/user/info',
-                      data: {
+                    $.post(
+                      '/api/dingtalk/user/info',
+                      {
                         "code": info.code,
                         "corp_id": corpId,
                         "app_id": appId
                       },
-                      timeout: 900,
-                      success: function (data, status, xhr) {
-                        if (data.code === 0) {
-                          $('#user-result').html('userid: ' + data.data.userId);
-                          dd.userid = data.data.userId;
-                        }
-                        else {
-                          $('#user-result').html('用户信息获取失败: ' + data.message);
-                        }
-                      },
-                      error: function (xhr, errorType, error) {
-                        $('#user-result').html('用户信息获取失败: ' + xhr + " type:" +
-                          errorType + " error: " + error);
-                        console.log(errorType + ', ' + error);
+                      function (result) {
+                          $('#user-result').html(JSON.stringify(result))
                       }
-                    });
+                    );
+
                   },
                   onFail: function (err) {
                     $('#auth-result').html('免登授权失败：' + JSON.stringify(err));

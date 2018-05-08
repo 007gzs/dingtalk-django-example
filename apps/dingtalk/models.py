@@ -172,6 +172,9 @@ class CorpUser(model.BaseModel):
         on_delete=models.DO_NOTHING
     )
 
+    def __str__(self):
+        return "%s - %s" % (self.corp, self.user)
+
     class Meta:
         unique_together = ('userid', 'corp')
         verbose_name = verbose_name_plural = '企业用户信息'
