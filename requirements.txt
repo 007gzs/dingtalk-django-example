@@ -8,7 +8,7 @@ Django
 django-redis-sessions
 django-redis-cache
 djangorestframework
-django-restframework-apiview
+django-restframework-apiview>=1.2.20
 celery
 pycrypto
-dingtalk-sdk
+dingtalk-sdk>=1.0.6

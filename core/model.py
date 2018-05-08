@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from django.db.models.fields import reverse_related
 
-from apiview import model, admintools
+from apiview import model, admintools, descriptors
 from django.db import models
 
 from example.celery import async_call
@@ -101,6 +101,33 @@ class ManyToManyRel(reverse_related.ForeignObjectRel):
             return field.foreign_related_fields[0]
 
 
+# class ForwardManyToOneCacheDescriptor(ForwardManyToOneDescriptor):
+#     def get_cache_object(self, instance):
+#         model = self.field.model
+#         if not issubclass(model, model.BaseModel) or not model.with_cache:
+#             return None
+#         if len(self.field.foreign_related_fields) != 1:
+#             return None
+#
+#         val = self.field.get_local_related_value(instance)
+#         if len(val) != 1:
+#             return None
+#         return model.get_obj_by_unique_key_from_cache(**self.field.get_filter_kwargs_for_object(instance))
+#
+#     def get_object(self, instance):
+#         try:
+#             ret = self.get_cache_object(instance)
+#         except Exception:
+#             ret = None
+#         if ret is not None:
+#             return ret
+#         return super(ForwardManyToOneCacheDescriptor, self).get_object(instance)
+#
+#
+# class ForwardOneToOneCacheDescriptor(ForwardOneToOneDescriptor, ForwardManyToOneCacheDescriptor):
+#     pass
+
+
 class ManyToManyField(models.ManyToManyField):
 
     rel_class = ManyToManyRel
@@ -112,6 +139,9 @@ class ManyToManyField(models.ManyToManyField):
 
 
 class ForeignKey(models.ForeignKey):
+
+    forward_related_accessor_class = descriptors.ForwardManyToOneCacheDescriptor
+
     def __init__(self, to, on_delete=models.DO_NOTHING, related_name=None, related_query_name=None,
                  limit_choices_to=None, parent_link=False, to_field=None, db_constraint=False,  **kwargs):
         super(ForeignKey, self).__init__(to, on_delete, related_name, related_query_name, limit_choices_to,
@@ -119,6 +149,9 @@ class ForeignKey(models.ForeignKey):
 
 
 class OneToOneField(models.OneToOneField):
+
+    forward_related_accessor_class = descriptors.ForwardOneToOneCacheDescriptor
+
     def __init__(self, to, on_delete=models.DO_NOTHING, to_field=None, db_constraint=False, **kwargs):
         super(OneToOneField, self).__init__(to, on_delete, to_field, db_constraint=db_constraint, **kwargs)
 

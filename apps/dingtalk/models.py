@@ -50,6 +50,9 @@ class Corp(model.BaseModel):
         on_delete=models.DO_NOTHING
     )
 
+    def __str__(self):
+        return self.corp_name
+
     class Meta:
         unique_together = ('corpid', 'suite')
         verbose_name = verbose_name_plural = '企业信息'
@@ -92,13 +95,16 @@ class CorpAgent(model.BaseModel):
     )
     corp = model.ForeignKey(
         Corp,
-        to_field='corpid',
+        to_field='id',
         verbose_name='所属企业',
         db_constraint=False,
-        db_column='corpid',
+        db_column='corp_id',
         null=False,
         on_delete=models.DO_NOTHING
     )
+
+    def __str__(self):
+        return '%s - %s' % (self.corp, self.agent)
 
     class Meta:
         unique_together = ('agentid', 'corp', 'agent')

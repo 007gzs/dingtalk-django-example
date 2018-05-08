@@ -73,3 +73,15 @@ def set_corp_info(corp_model, corp_info):
     set_agent(corp_model, agents, constants.AGENT_TYPE_CODE.MICRO.code)
     channel_agents = corp_info.get('channel_auth_info', {}).get('channelAgent', [])
     set_agent(corp_model, channel_agents, constants.AGENT_TYPE_CODE.CHANNEL.code)
+
+
+def sync_corp(corppk):
+    corp = models.Corp.get_obj_by_pk_from_cache(corppk)
+    if corp is None or corp.suite is None:
+        return
+    client = corp.suite.get_suite_client()
+    if corp.status == constants.CORP_STSTUS_CODE.AUTH.code:
+        client.activate_suite(corp.corpid)
+        corp.status = constants.CORP_STSTUS_CODE.ACTIVE.code
+    corp_info = client.get_auth_info(corp.corpid)
+    set_corp_info(corp, corp_info)
