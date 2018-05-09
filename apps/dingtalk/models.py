@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 from apiview.err_code import ErrCode
 from apiview.exceptions import CustomError
+from apiview.model import AbstractUserMixin
 from django.db import models
 
 from core import model
@@ -131,7 +132,7 @@ class CorpAgent(model.BaseModel):
         verbose_name = verbose_name_plural = '企业应用信息'
 
 
-class User(model.BaseModel):
+class User(model.BaseModel, AbstractUserMixin):
     dingid = models.CharField('钉钉Id', max_length=128, null=False, blank=False, unique=True)
     name = models.CharField('成员名称', max_length=128, null=False, blank=False, default='')
     active = models.BooleanField('是否已经激活', null=False, blank=False, default=False)

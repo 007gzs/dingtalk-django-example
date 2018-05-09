@@ -5,6 +5,7 @@ from apiview.err_code import ErrCode
 from apiview.exceptions import CustomError
 from apiview.views import ViewSite, fields
 from dingtalk.core.constants import SuitePushType
+from django.contrib.auth import login, authenticate
 from django.utils.encoding import force_text
 from rest_framework.response import Response
 
@@ -106,9 +107,15 @@ class SuiteCallback(view.APIBase):
         )
 
 
-class CorpAgentBase(view.APIBase):
+class CorpAgentMixin(object):
 
-    def get_corp_agent_info(self, request):
+    param_fields = (
+        ('corp_id', fields.CharField(help_text='corp_id', required=True)),
+        ('app_id', fields.IntegerField(help_text='app_id', required=True)),
+    )
+
+    @classmethod
+    def get_corp_agent_info(cls, request):
         corp_agent_id = cache.CorpAgentCache.get("%s|||%s" % (request.params.app_id, request.params.corp_id))
         if corp_agent_id is not None:
             corp_agent = models.CorpAgent.get_obj_by_pk_from_cache(corp_agent_id)
@@ -129,19 +136,9 @@ class CorpAgentBase(view.APIBase):
         cache.CorpAgentCache.set("%s|||%s" % (request.params.app_id, request.params.corp_id), corp_agent.pk)
         return corp_agent
 
-    def get_context(self, request, *args, **kwargs):
-        raise NotImplementedError
-
-    class Meta:
-        path = '/'
-        param_fields = (
-            ('corp_id', fields.CharField(help_text='corp_id', required=True)),
-            ('app_id', fields.IntegerField(help_text='app_id', required=True)),
-        )
-
 
 @site
-class JsConfig(CorpAgentBase):
+class JsConfig(view.APIBase, CorpAgentMixin):
 
     def get_context(self, request, *args, **kwargs):
         url = request.META.get('HTTP_REFERER', None)
@@ -155,9 +152,12 @@ class JsConfig(CorpAgentBase):
         ret['agentId'] = corp_agent.agentid
         return ret
 
+    class Meta:
+        param_fields = CorpAgentMixin.param_fields
+
 
 @site
-class UserInfo(CorpAgentBase):
+class JsLogin(view.APIBase, CorpAgentMixin):
 
     def get_context(self, request, *args, **kwargs):
 
@@ -169,12 +169,35 @@ class UserInfo(CorpAgentBase):
         if corp_user.user.last_deviceid != user_info['deviceId']:
             corp_user.user.last_deviceid = user_info['deviceId']
             corp_user.user.save_changed()
+        corp_user = authenticate(dingtalk_corp_user_id=corp_user.pk)
+        if corp_user is not None:
+            login(request, corp_user)
         return serializer.CorpUserSerializer(corp_user).data
 
     class Meta:
-        param_fields = (
+        param_fields = CorpAgentMixin.param_fields + (
             ('code', fields.CharField(help_text='code', required=True)),
         )
+
+
+class DingtalkCorpUserBase(view.APIBase):
+
+    def get_context(self, request, *args, **kwargs):
+        raise NotImplementedError
+
+    def check_api_permissions(self, request, *args, **kwargs):
+        if not isinstance(request.user, models.CorpUser):
+            raise CustomError(ErrCode.ERR_AUTH_NOLOGIN)
+
+    class Meta:
+        path = '/'
+
+
+@site
+class UserInfo(DingtalkCorpUserBase):
+
+    def get_context(self, request, *args, **kwargs):
+        return serializer.CorpUserSerializer(request.user).data
 
 
 urlpatterns = site.urlpatterns

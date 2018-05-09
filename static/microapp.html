@@ -23,14 +23,80 @@
           }
         }
       };
-      $(document).ready(function () {
-        var url = window.location.href;
+      function init_config() {
+          $('#notify-btn').on('click', function () {
+            dd.device.notification.alert({
+              message: 'dd.device.notification.alert 内容',
+              title: 'This is title 标题',
+              buttonName: 'button按钮',
+              onSuccess: function (data) {
+                console.log('onSuccess: ', data);
+              },
+              onFail: function (err) {
+                console.log('fail: ', err);
+              }
+            });
+          });
+          $('#user-btn').on('click', function () {
+            dd.biz.user.get({
+                onSuccess: function (info) {
+                    $('#auth-result').html(JSON.stringify(info))
+                },
+                onFail: function (err) {
+                    $('#auth-result').html(JSON.stringify(err))
+                }
+            });
+          });
+      }
+      function auth_code_login(){
+        dd.runtime.permission.requestAuthCode({
+          corpId: corpId, //企业id
+          onSuccess: function (info) {
+            console.log('auth result', info);
+            $('#auth-result').html('免登授权成功！获取用户信息...');
+            $.post(
+              '/api/dingtalk/js/login',
+              {
+                "code": info.code,
+                "corp_id": corpId,
+                "app_id": appId
+              },
+              function (result) {
+                  if(result.code !== 0){
+                      $('#auth-result').html(result.message)
+                  }else{
+                      $('#auth-result').html(result.data.user.name+"<br>"+result.data.corp.corp_name)
+                  }
+              }
+            );
+
+          },
+          onFail: function (err) {
+            $('#auth-result').html('免登授权失败：' + JSON.stringify(err));
+            console.log('requestAuthCode fail: ' + JSON.stringify(err));
+          }
+        });
+      }
+      function get_user_info(){
+          $.get(
+              '/api/dingtalk/user/info',
+              {},
+              function (result) {
+                  if(result.code !== 0){
+                      if(result.code === 10001){
+                          auth_code_login();
+                          return
+                      }
+                      $('#auth-result').html(result.message)
+                  }else{
+                      $('#auth-result').html(result.data.user.name+"<br>"+result.data.corp.corp_name)
+                  }
+              }
+          )
+      }
+      function init(){
         var corpId = getUrlParameter('corpId');
         var appId = getUrlParameter('appId');
-        var signature = "";
-        var nonce = "";
-        var timeStamp = "";
-        var agentId = "";
         $.post(
           "/api/dingtalk/js/config",
           {
@@ -38,9 +104,9 @@
             "app_id": appId
           },
           function (result) {
-            $('#url-p').html(url);
             console.log("result", result);
             if(result.code !== 0){
+                $('#url-p').html(result.message);
                 return
             }
             var config = result.data;
@@ -48,7 +114,9 @@
                 'device.notification.alert',
                 'device.notification.prompt',
                 'biz.chat.chooseConversation',
-                'biz.ding.post'];
+                'biz.ding.post',
+                'biz.user.get'
+            ];
             dd.config(config);
             dd.ready(function () {
               $('#conf-result').html('配置成功！');
@@ -59,51 +127,18 @@
               document.addEventListener('resume', function () {
                 console.log('resume');
               });
-              $('#auth-btn').on('click', function () {
-                dd.runtime.permission.requestAuthCode({
-                  corpId: corpId, //企业id
-                  onSuccess: function (info) {
-                    console.log('auth result', info);
-                    $('#auth-result').html('免登授权成功！');
-                    $('#user-result').html('获取用户信息...'+info.code);
-                    $.post(
-                      '/api/dingtalk/user/info',
-                      {
-                        "code": info.code,
-                        "corp_id": corpId,
-                        "app_id": appId
-                      },
-                      function (result) {
-                          $('#user-result').html(JSON.stringify(result))
-                      }
-                    );
+              init_config();
+              get_user_info();
 
-                  },
-                  onFail: function (err) {
-                    $('#auth-result').html('免登授权失败：' + JSON.stringify(err));
-                    console.log('requestAuthCode fail: ' + JSON.stringify(err));
-                  }
-                });
-              });
-              $('#notify-btn').on('click', function () {
-                dd.device.notification.alert({
-                  message: 'dd.device.notification.alert',
-                  title: 'This is title',
-                  buttonName: 'button',
-                  onSuccess: function (data) {
-                    console.log('onSuccess: ', data);
-                  },
-                  onFail: function (err) {
-                    console.log('fail: ', err);
-                  }
-                });
-              });
             });
             dd.error(function (err) {
               $('#conf-result').html('配置失败：' + JSON.stringify(err));
               console.log('dd error: ', err);
             });
           });
+      }
+      $(document).ready(function () {
+          init();
       });
     </script>
 </head>
@@ -113,11 +148,11 @@
 <p id="conf-result">
     配置中...
 </p>
-<button id="auth-btn" class="btn btn-block btn-default">获取免登鉴权</button>
 <p id="auth-result"></p>
-<p id="user-result"></p>
 
 <button id="notify-btn" class="btn btn-block btn-default">显示通知</button>
+<button id="user-btn" class="btn btn-block btn-default">本地用户信息</button>
+<p id="user-result"></p>
 
 </body>
 </html>

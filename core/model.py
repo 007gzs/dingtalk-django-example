@@ -101,33 +101,6 @@ class ManyToManyRel(reverse_related.ForeignObjectRel):
             return field.foreign_related_fields[0]
 
 
-# class ForwardManyToOneCacheDescriptor(ForwardManyToOneDescriptor):
-#     def get_cache_object(self, instance):
-#         model = self.field.model
-#         if not issubclass(model, model.BaseModel) or not model.with_cache:
-#             return None
-#         if len(self.field.foreign_related_fields) != 1:
-#             return None
-#
-#         val = self.field.get_local_related_value(instance)
-#         if len(val) != 1:
-#             return None
-#         return model.get_obj_by_unique_key_from_cache(**self.field.get_filter_kwargs_for_object(instance))
-#
-#     def get_object(self, instance):
-#         try:
-#             ret = self.get_cache_object(instance)
-#         except Exception:
-#             ret = None
-#         if ret is not None:
-#             return ret
-#         return super(ForwardManyToOneCacheDescriptor, self).get_object(instance)
-#
-#
-# class ForwardOneToOneCacheDescriptor(ForwardOneToOneDescriptor, ForwardManyToOneCacheDescriptor):
-#     pass
-
-
 class ManyToManyField(models.ManyToManyField):
 
     rel_class = ManyToManyRel
