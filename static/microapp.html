@@ -80,10 +80,10 @@
           $('#user-btn').on('click', function () {
             dd.biz.user.get({
                 onSuccess: function (info) {
-                    $('#auth-result').html(JSON.stringify(info))
+                    $('#user-result').html(JSON.stringify(info))
                 },
                 onFail: function (err) {
-                    $('#auth-result').html(JSON.stringify(err))
+                    $('#user-result').html(JSON.stringify(err))
                 }
             });
           });

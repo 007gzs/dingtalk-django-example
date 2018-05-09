@@ -132,7 +132,7 @@ class CorpAgent(model.BaseModel):
         verbose_name = verbose_name_plural = '企业应用信息'
 
 
-class User(model.BaseModel, AbstractUserMixin):
+class User(model.BaseModel):
     dingid = models.CharField('钉钉Id', max_length=128, null=False, blank=False, unique=True)
     name = models.CharField('成员名称', max_length=128, null=False, blank=False, default='')
     active = models.BooleanField('是否已经激活', null=False, blank=False, default=False)
@@ -143,7 +143,7 @@ class User(model.BaseModel, AbstractUserMixin):
         verbose_name = verbose_name_plural = '用户信息'
 
 
-class CorpUser(model.BaseModel):
+class CorpUser(model.BaseModel, AbstractUserMixin):
     userid = models.CharField('员工唯一标识ID', max_length=128, null=False, blank=False)
     openid = models.CharField('在本 服务窗运营服务商 范围内,唯一标识关注者身份的id', max_length=128, null=False, blank=False)
     unionid = models.CharField('在当前isv全局范围内唯一标识一个用户的身份', max_length=128, null=False, blank=False)
