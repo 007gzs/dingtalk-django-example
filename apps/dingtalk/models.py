@@ -53,7 +53,7 @@ class Corp(model.BaseModel):
         on_delete=models.DO_NOTHING
     )
 
-    def get_dingtail_client(self):
+    def get_dingtalk_client(self):
         if self.status != constants.CORP_STSTUS_CODE.ACTIVE.code or not self.permanent_code:
             raise CustomError(ErrCode.ERR_COMMON_PERMISSION)
         return self.suite.get_suite_client().get_dingtalk_client(self.corpid)

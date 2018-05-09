@@ -141,7 +141,7 @@ def sync_corp(corppk):
     corp_info = client.get_auth_info(corp.corpid)
     set_corp_info(corp, corp_info)
     try:
-        corp_client = corp.get_dingtail_client()
+        corp_client = corp.get_dingtalk_client()
         department_ids = get_department_ids(corp_client)
         for department_id in department_ids:
             sync_user(corp, corp_client, department_id)
@@ -151,7 +151,7 @@ def sync_corp(corppk):
 
 
 def refresh_corp_user(user_id, corp):
-    client = corp.get_dingtail_client()
+    client = corp.get_dingtalk_client()
     return set_corp_user(client.user.get(user_id))
 
 
