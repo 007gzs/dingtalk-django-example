@@ -23,6 +23,46 @@
           }
         }
       };
+
+      var corpId = getUrlParameter('corpId');
+      var appId = getUrlParameter('appId');
+      function conn(p_url, p_data, listener, p_type, format, timeout, showcontent) {
+        if(timeout===undefined || timeout==null){
+            timeout = 30000;
+        }
+
+        if(format===undefined || format===null){
+            format = 'jsonp';
+        }
+        if(p_type === undefined || p_type==null){
+            p_type = 'GET';
+        }
+        p_data["format"] = format;
+        p_data["corp_id"] = corpId;
+        p_data["app_id"] = appId;
+        p_data["rand"] = new Date().getTime();
+        $.ajax({
+            type: p_type,
+            url: p_url,
+            data: p_data,
+            dataType: format,
+            timeout: timeout,
+            context: $('body'),
+            xhrFields: {
+              withCredentials: true
+            },
+            success: function (data) {
+                if (typeof listener.success === "function") {
+                    listener.success(data);
+                }
+            },
+            error: function (xhr, type) {
+                if (typeof listener.error === "function") {
+                    listener.error(xhr, type);
+                }
+            }
+        })
+    }
       function init_config() {
           $('#notify-btn').on('click', function () {
             dd.device.notification.alert({
@@ -54,22 +94,18 @@
           onSuccess: function (info) {
             console.log('auth result', info);
             $('#auth-result').html('免登授权成功！获取用户信息...');
-            $.post(
-              '/api/dingtalk/js/login',
-              {
-                "code": info.code,
-                "corp_id": corpId,
-                "app_id": appId
-              },
-              function (result) {
-                  if(result.code !== 0){
-                      $('#auth-result').html(result.message)
+            conn('/api/dingtalk/js/login', {"code": info.code}, {
+                success: function (data) {
+                  if(data.code !== 0){
+                      $('#auth-result').html(data.message)
                   }else{
-                      $('#auth-result').html(result.data.user.name+"<br>"+result.data.corp.corp_name)
+                      $('#auth-result').html(data.data.user.name+"<br>"+data.data.corp.corp_name)
                   }
-              }
-            );
-
+                },
+                error: function (xhr, type) {
+                  $('#auth-result').html("网络错误")
+                }
+            });
           },
           onFail: function (err) {
             $('#auth-result').html('免登授权失败：' + JSON.stringify(err));
@@ -78,64 +114,65 @@
         });
       }
       function get_user_info(){
-          $.get(
-              '/api/dingtalk/user/info',
-              {},
-              function (result) {
-                  if(result.code !== 0){
-                      if(result.code === 10001){
-                          auth_code_login();
-                          return
-                      }
-                      $('#auth-result').html(result.message)
-                  }else{
-                      $('#auth-result').html(result.data.user.name+"<br>"+result.data.corp.corp_name)
+        conn('/api/dingtalk/user/info', {}, {
+            success: function (data) {
+              if(data.code !== 0){
+                  if(data.code === 10001){
+                      auth_code_login();
+                      return
                   }
+                  $('#auth-result').html(data.message)
+              }else{
+                  $('#auth-result').html(data.data.user.name+"<br>"+data.data.corp.corp_name)
               }
-          )
+            },
+            error: function (xhr, type) {
+              $('#auth-result').html("网络错误")
+            }
+        });
+      }
+      function dd_config(config){
+        dd.config(config);
+        dd.ready(function () {
+          $('#conf-result').html('配置成功！');
+          console.log('dd ready');
+          document.addEventListener('pause', function () {
+            console.log('pause');
+          });
+          document.addEventListener('resume', function () {
+            console.log('resume');
+          });
+          init_config();
+          get_user_info();
+
+        });
+        dd.error(function (err) {
+          $('#conf-result').html('配置失败：' + JSON.stringify(err));
+          console.log('dd error: ', err);
+        });
       }
       function init(){
-        var corpId = getUrlParameter('corpId');
-        var appId = getUrlParameter('appId');
-        $.post(
-          "/api/dingtalk/js/config",
-          {
-            "corp_id": corpId,
-            "app_id": appId
-          },
-          function (result) {
-            console.log("result", result);
-            if(result.code !== 0){
-                $('#url-p').html(result.message);
-                return
+          conn('/api/dingtalk/js/config', {}, {
+            success: function (data) {
+              console.log("result", data);
+              if(data.code !== 0){
+                  $('#url-p').html(data.message);
+                  return
+              }
+              var config = data.data;
+              config["jsApiList"] = ['device.notification.confirm',
+                  'device.notification.alert',
+                  'device.notification.prompt',
+                  'biz.chat.chooseConversation',
+                  'biz.ding.post',
+                  'biz.user.get'
+              ];
+              dd_config(config);
+            },
+            error: function (xhr, type) {
+              $('#auth-result').html("网络错误")
             }
-            var config = result.data;
-            config["jsApiList"] = ['device.notification.confirm',
-                'device.notification.alert',
-                'device.notification.prompt',
-                'biz.chat.chooseConversation',
-                'biz.ding.post',
-                'biz.user.get'
-            ];
-            dd.config(config);
-            dd.ready(function () {
-              $('#conf-result').html('配置成功！');
-              console.log('dd ready');
-              document.addEventListener('pause', function () {
-                console.log('pause');
-              });
-              document.addEventListener('resume', function () {
-                console.log('resume');
-              });
-              init_config();
-              get_user_info();
-
-            });
-            dd.error(function (err) {
-              $('#conf-result').html('配置失败：' + JSON.stringify(err));
-              console.log('dd error: ', err);
-            });
-          });
+        });
       }
       $(document).ready(function () {
           init();
