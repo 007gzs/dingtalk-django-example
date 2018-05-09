@@ -76,6 +76,60 @@ def set_corp_info(corp_model, corp_info):
     set_agent(corp_model, channel_agents, constants.AGENT_TYPE_CODE.CHANNEL.code)
 
 
+def get_department_ids(corp_client, proced=set(), parent_id=1):
+    if parent_id in proced:
+        return
+    ret = set()
+    ret.add(parent_id)
+    ids = corp_client.department.list_ids(parent_id)
+    proced.add(parent_id)
+    ret.update(set(ids))
+    for _id in ids:
+        ret.update(get_department_ids(corp_client, proced, _id))
+    return ret
+
+
+def set_corp_user(user_info, corp):
+    user_id = user_info['userid']
+    user = models.User.get_obj_by_unique_key_from_cache(dingid=user_info['dingId'])
+    if user is None:
+        user = models.User()
+        user.dingid = user_info['dingId']
+    user.name = user_info['name']
+    user.active = user_info['active']
+    user.avatar = user_info['avatar']
+    user.save_or_update()
+    corp_user = models.CorpUser.objects.filter(userid=user_id, corp_id=corp.pk).first()
+    if corp_user is None:
+        corp_user = models.CorpUser()
+        corp_user.userid = user_id
+        corp_user.corp = corp
+    corp_user.user = user
+    hired_date = user_info.get('hiredDate', None)
+    if hired_date is not None:
+        corp_user.hired_date = utility.timestamp2datetime(hired_date / 1000)
+    keys = {'is_admin': 'isAdmin', 'is_senior': 'isSenior', 'is_boss': 'isBoss', 'state_code': 'stateCode',
+            'openid': 'openid', 'unionid': 'unionid', 'position': 'position', 'jobnumber': 'jobnumber'}
+    for k, v in keys.items():
+        value = user_info.get(v, None)
+        if value is not None:
+            setattr(corp_user, k, value)
+    corp_user.save_or_update()
+
+    return corp_user
+
+
+def sync_user(corp, corp_client, department_id):
+    offset = 0
+    while True:
+        users = corp_client.user.list(department_id)
+        for user in users.get('userlist', []):
+            offset += 1
+            set_corp_user(user, corp)
+        if not users.get('hasMore', False):
+            return
+
+
 def sync_corp(corppk):
     corp = models.Corp.get_obj_by_pk_from_cache(corppk)
     if corp is None or corp.suite is None:
@@ -86,38 +140,19 @@ def sync_corp(corppk):
         corp.status = constants.CORP_STSTUS_CODE.ACTIVE.code
     corp_info = client.get_auth_info(corp.corpid)
     set_corp_info(corp, corp_info)
+    try:
+        corp_client = corp.get_client()
+        department_ids = get_department_ids(corp_client)
+        for department_id in department_ids:
+            sync_user(corp, corp_client, department_id)
+    except Exception:
+        pass
     return corp_info
 
 
 def refresh_corp_user(user_id, corp):
     client = corp.get_dingtail_client()
-    ret = client.user.get(user_id)
-    user = models.User.get_obj_by_unique_key_from_cache(dingid=ret['dingId'])
-    if user is None:
-        user = models.User()
-        user.dingid = ret['dingId']
-    user.name = ret['name']
-    user.active = ret['active']
-    user.avatar = ret['avatar']
-    user.save_or_update()
-    corp_user = models.CorpUser.objects.filter(userid=user_id, corp_id=corp.pk).first()
-    if corp_user is None:
-        corp_user = models.CorpUser()
-        corp_user.userid = user_id
-        corp_user.corp = corp
-    corp_user.user = user
-    hired_date = ret.get('hiredDate', None)
-    if hired_date is not None:
-        corp_user.hired_date = utility.timestamp2datetime(hired_date / 1000)
-    keys = {'is_admin': 'isAdmin', 'is_senior': 'isSenior', 'is_boss': 'isBoss', 'state_code': 'stateCode',
-            'openid': 'openid', 'unionid': 'unionid', 'position': 'position', 'jobnumber': 'jobnumber'}
-    for k, v in keys.items():
-        value = ret.get(v, None)
-        if value is not None:
-            setattr(corp_user, k, value)
-    corp_user.save_or_update()
-
-    return corp_user
+    return set_corp_user(client.user.get(user_id))
 
 
 def get_corp_user(user_id, corp):
