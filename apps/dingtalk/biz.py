@@ -141,7 +141,7 @@ def sync_corp(corppk):
     corp_info = client.get_auth_info(corp.corpid)
     set_corp_info(corp, corp_info)
     try:
-        corp_client = corp.get_client()
+        corp_client = corp.get_dingtail_client()
         department_ids = get_department_ids(corp_client)
         for department_id in department_ids:
             sync_user(corp, corp_client, department_id)

@@ -13,4 +13,4 @@ admin.site_register(models.Corp, addable=False, editable=False, list_filter=['st
                     exclude_list_display=['permanent_code', 'ch_permanent_code'])
 admin.site_register(models.User, addable=False, editable=False)
 admin.site_register(models.CorpUser, addable=False, editable=False,
-                    list_filter=['corp', 'user'], list_display=['corp', 'user'])
+                    list_filter=['corp', ], list_display=['corp', 'user'])
