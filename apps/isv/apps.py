@@ -3,6 +3,6 @@ from __future__ import absolute_import, unicode_literals
 from django.apps import AppConfig
 
 
-class DingtalkConfig(AppConfig):
-    name = 'apps.dingtalk'
-    verbose_name = '钉钉模块'
+class ISVConfig(AppConfig):
+    name = 'apps.isv'
+    verbose_name = 'ISV钉钉模块'

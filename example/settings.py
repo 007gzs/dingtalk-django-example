@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'import_export',
     'apiview',
-    'apps.dingtalk',
+    'apps.isv',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -193,7 +193,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'apps.dingtalk.backend.DingTalkBackend',
+    'apps.isv.backend.ISVBackend',
 )
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/

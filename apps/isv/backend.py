@@ -7,12 +7,12 @@ from core import constants
 from .models import CorpUser
 
 
-class DingTalkBackend(object):
+class ISVBackend(object):
 
-    def authenticate(self, dingtalk_corp_user_id, **kwargs):
-        if dingtalk_corp_user_id is None:
+    def authenticate(self, isv_corp_user_id, **kwargs):
+        if isv_corp_user_id is None:
             return None
-        user = CorpUser.get_obj_by_pk_from_cache(dingtalk_corp_user_id)
+        user = CorpUser.get_obj_by_pk_from_cache(isv_corp_user_id)
         if user and self.user_can_authenticate(user):
             return user
 

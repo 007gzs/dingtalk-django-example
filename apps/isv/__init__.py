@@ -2,4 +2,4 @@
 from __future__ import absolute_import, unicode_literals
 
 
-default_app_config = 'apps.dingtalk.apps.DingtalkConfig'
+default_app_config = 'apps.isv.apps.ISVConfig'

@@ -169,7 +169,7 @@ class JsLogin(view.APIBase, CorpAgentMixin):
         if corp_user.user.last_deviceid != user_info['deviceId']:
             corp_user.user.last_deviceid = user_info['deviceId']
             corp_user.user.save_changed()
-        corp_user = authenticate(dingtalk_corp_user_id=corp_user.pk)
+        corp_user = authenticate(isv_corp_user_id=corp_user.pk)
         if corp_user is not None:
             login(request, corp_user)
         return serializer.CorpUserSerializer(corp_user).data

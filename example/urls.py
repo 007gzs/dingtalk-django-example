@@ -23,7 +23,7 @@ from django.conf import settings
 from apiview.common_view import generate_api_js
 
 api_patterns = [
-    url(r'^dingtalk/', include("apps.dingtalk.views")),
+    url(r'^dingtalk/isv/', include("apps.isv.views")),
 ]
 
 urlpatterns = [
