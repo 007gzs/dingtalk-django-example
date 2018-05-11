@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'import_export',
     'apiview',
     'apps.isv',
+    'apps.corp',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

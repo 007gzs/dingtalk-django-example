@@ -81,11 +81,11 @@ def get_department_ids(corp_client, proced=set(), parent_id=None):
     ret = set()
     if parent_id is None:
         scopes = corp_client.user.auth_scopes()
-        parent_id = scopes.get('authed_dept', [])
+        parent_id = scopes.get('auth_org_scopes', {}).get('authed_dept', [])
 
     if isinstance(parent_id, (list, tuple)):
         for pid in parent_id:
-            ret.update(get_department_ids, proced, pid)
+            ret.update(get_department_ids(corp_client, proced, pid))
         return ret
 
     if parent_id in proced:
@@ -118,6 +118,7 @@ def set_corp_user(user_info, corp):
     hired_date = user_info.get('hiredDate', None)
     if hired_date is not None:
         corp_user.hired_date = utility.timestamp2datetime(hired_date / 1000)
+
     keys = {'is_admin': 'isAdmin', 'is_senior': 'isSenior', 'is_boss': 'isBoss', 'state_code': 'stateCode',
             'openid': 'openid', 'unionid': 'unionid', 'position': 'position', 'jobnumber': 'jobnumber'}
     for k, v in keys.items():

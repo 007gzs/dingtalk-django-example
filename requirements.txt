@@ -11,4 +11,4 @@ djangorestframework
 django-restframework-apiview>=1.2.20
 celery
 pycrypto
-dingtalk-sdk>=1.0.6
+dingtalk-sdk>=1.1.0

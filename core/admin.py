@@ -45,6 +45,8 @@ def site_register(model_or_iterable, admin_class=None, site=None, dismiss_create
         model_or_iterable = [model_or_iterable]
     for m in model_or_iterable:
         if issubclass(m, BaseModel):
+            if 'exclude_list_display' in options:
+                options['exclude_list_display'] = ['remark', 'modify_time'] + list(options['exclude_list_display'])
             if 'list_filter' in options and not dismiss_create_time and 'create_time' not in options['list_filter']:
                 options['list_filter'] = ['create_time', ] + list(options['list_filter'])
         admin.site_register(m, admin_class, site, **options)

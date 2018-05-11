@@ -14,7 +14,7 @@ from example import celery
 from . import models, constants, biz, cache, serializer
 
 
-site = ViewSite(name='dingtalk', app_name='apps.dingtalk')
+site = ViewSite(name='isv', app_name='apps.isv')
 
 
 @site

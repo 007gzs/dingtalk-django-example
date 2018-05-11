@@ -24,6 +24,7 @@ from apiview.common_view import generate_api_js
 
 api_patterns = [
     url(r'^dingtalk/isv/', include("apps.isv.views")),
+    url(r'^dingtalk/corp/', include("apps.corp.views")),
 ]
 
 urlpatterns = [
