@@ -76,10 +76,20 @@ def set_corp_info(corp_model, corp_info):
     set_agent(corp_model, channel_agents, constants.AGENT_TYPE_CODE.CHANNEL.code)
 
 
-def get_department_ids(corp_client, proced=set(), parent_id=1):
-    if parent_id in proced:
-        return
+def get_department_ids(corp_client, proced=set(), parent_id=None):
+
     ret = set()
+    if parent_id is None:
+        scopes = corp_client.user.auth_scopes()
+        parent_id = scopes.get('authed_dept', [])
+
+    if isinstance(parent_id, (list, tuple)):
+        for pid in parent_id:
+            ret.update(get_department_ids, proced, pid)
+        return ret
+
+    if parent_id in proced:
+        return ret
     ret.add(parent_id)
     ids = corp_client.department.list_ids(parent_id)
     proced.add(parent_id)
