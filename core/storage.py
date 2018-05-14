@@ -14,9 +14,16 @@ from django.utils.encoding import force_text, force_bytes
 from oss2 import Auth, Service, BucketIterator, Bucket, ObjectIterator
 from oss2.exceptions import AccessDenied
 from django.core.exceptions import ImproperlyConfigured, SuspiciousOperation
-from django.core.files.storage import Storage
+from django.core.files.storage import Storage, FileSystemStorage
 from django.conf import settings
 from oss2.api import _normalize_endpoint
+
+
+class EnableUrlFileSystemStorage(FileSystemStorage):
+    def url(self, name):
+        if name.startswith("https://") or name.startswith("http://"):
+            return name
+        return super(EnableUrlFileSystemStorage, self).url(name)
 
 
 class AliyunOperationError(Exception):

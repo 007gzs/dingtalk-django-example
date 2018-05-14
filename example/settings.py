@@ -228,7 +228,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
 )
 
-DEFAULT_FILE_STORAGE = 'core.storage.AliyunMediaStorage'
+DEFAULT_FILE_STORAGE = 'core.storage.EnableUrlFileSystemStorage'
 
 # celery settings
 

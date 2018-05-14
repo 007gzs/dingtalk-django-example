@@ -1,28 +1,21 @@
 # encoding: utf-8
 from __future__ import absolute_import, unicode_literals
 
-REDIS_HOST = '127.0.0.1'
-REDIS_PASSWORD = ''
-REDIS_PORT = '6379'
-REDIS_CACHE_DB = 5
-REDIS_SESSION_DB = 6
-REDIS_CELERY_DB = 7
-REDIS_DINGTALK_DB = 8
+REDIS_HOST = '127.0.0.1'  # REDIS 地址
+REDIS_PASSWORD = ''  # REDIS 密码
+REDIS_PORT = '6379'  # REDIS 端口
+REDIS_CACHE_DB = 5  # django cache 使用redis db
+REDIS_SESSION_DB = 6  # django session 使用redis db
+REDIS_CELERY_DB = 7  # celery 使用redis db
+REDIS_DINGTALK_DB = 8  # 钉钉 使用redis db
 
-MYSQL_HOST = '127.0.0.1'
-MYSQL_PORT = '3306'
-MYSQL_DBNAME = 'dbname'
-MYSQL_USERNAME = 'root'
-MYSQL_PASSWORD = ''
+MYSQL_HOST = '127.0.0.1'  # MYSQL 地址
+MYSQL_PORT = '3306'  # MYSQL 端口
+MYSQL_DBNAME = 'dbname'  # MYSQL 数据库名
+MYSQL_USERNAME = 'root'  # MYSQL 用户名
+MYSQL_PASSWORD = ''  # MYSQL 密码
 
-DINGTALK_CORP_ID = ''
-DINGTALK_CORP_SECRET = ''
-DINGTALK_TOKEN = ''
-DINGTALK_AES_KEY = ''
-
-OSS_ACCESS_KEY_ID = ""
-OSS_ACCESS_KEY_SECRET = ""
-OSS_END_POINT = ""
-OSS_BUCKET_NAME = ""
-OSS_CNAME = ""
-OSS_BUCKET_ACL_TYPE = ""
+DINGTALK_CORP_ID = ''  # 钉钉企业号 (企业接入用)
+DINGTALK_CORP_SECRET = ''  # 钉钉企业Secret (企业接入用)
+DINGTALK_TOKEN = ''  # 钉钉企业加密解密token (企业接入用)
+DINGTALK_AES_KEY = ''  # 钉钉企业加密解密aes_key (企业接入用)
