@@ -119,7 +119,7 @@ class CorpAgent(model.BaseModel):
     def get_client(self):
         corp_client = None
         if self.agent.agent_type == constants.AGENT_TYPE_CODE.MICRO.code:
-            corp_client = self.corp.get_dingtail_client()
+            corp_client = self.corp.get_dingtalk_client()
         elif self.agent.agent_type == constants.AGENT_TYPE_CODE.CHANNEL.code:
             corp_client = self.corp.get_channel_client()
         return corp_client
