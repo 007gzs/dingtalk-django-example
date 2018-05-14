@@ -87,6 +87,31 @@
                 }
             });
           });
+          $('#select-user-btn').on('click', function () {
+            dd.biz.contact.complexPicker({
+                title:"测试标题",            //标题
+                corpId:corpId,              //企业的corpId
+                multiple:true,            //是否多选
+                limitTips:"超出了",          //超过限定人数返回提示
+                maxUsers:1000,            //最大可选人数
+                pickedUsers:[],            //已选用户
+                pickedDepartments:[],          //已选部门
+                disabledUsers:[],            //不可选用户
+                disabledDepartments:[],        //不可选部门
+                requiredUsers:[],            //必选用户（不可取消选中状态）
+                requiredDepartments:[],        //必选部门（不可取消选中状态）
+                appId:appId,              //微应用的Id
+                permissionType:"GLOBAL",          //选人权限，目前只有GLOBAL这个参数
+                responseUserOnly:false,        //返回人，或者返回人和部门
+                startWithDepartmentId:0 ,   // 0表示从企业最上层开始
+                onSuccess: function (info) {
+                    $('#select-user-result').html(JSON.stringify(info))
+                },
+                onFail: function (err) {
+                    $('#select-user-result').html(JSON.stringify(err))
+                }
+            });
+          });
       }
       function auth_code_login(){
         dd.runtime.permission.requestAuthCode({
@@ -161,6 +186,7 @@
               }
               var config = data.data;
               config["jsApiList"] = ['device.notification.confirm',
+                  'biz.contact.complexPicker',
                   'device.notification.alert',
                   'device.notification.prompt',
                   'biz.chat.chooseConversation',
@@ -190,6 +216,8 @@
 <button id="notify-btn" class="btn btn-block btn-default">显示通知</button>
 <button id="user-btn" class="btn btn-block btn-default">本地用户信息</button>
 <p id="user-result"></p>
+<button id="select-user-btn" class="btn btn-block btn-default">选择人员</button>
+<p id="select-user-result"></p>
 
 </body>
 </html>
