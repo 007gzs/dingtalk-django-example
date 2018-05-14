@@ -1,6 +1,6 @@
 # dingtalk-django-example
 
-本项目使用django、celery、dingtalk-sdk开发 钉钉企业接入 和 ISV服务商接入 的demo。
+本项目使用django、celery、[dingtalk-sdk](http://github.com/007gzs/dingtalk-sdk "dingtalk-sdk")开发 钉钉企业接入 和 ISV服务商接入 的demo。
 
 项目初始化
 ----------
