@@ -29,4 +29,4 @@ ISV服务商开发配置
 
 企业接入
 --------
-local_settings.py 中配置企业接入相关参数后 访问 `http://www.domain.com/api/dingtalk/corp/test/sync/corp` 可将企业员工同步到对应User表中，可以通过`http://www.domain.com/corp/user/`查看
+local_settings.py 中配置企业接入相关参数后 访问 `http://www.domain.com/api/dingtalk/corp/test/sync/corp` 可将企业员工同步到对应User表中，可以通过`http://www.domain.com/admin/corp/user/`查看
