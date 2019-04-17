@@ -4,8 +4,6 @@ import os
 from celery import Celery, signals
 from django.utils.log import configure_logging
 
-import pymysql
-pymysql.install_as_MySQLdb()
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'example.settings')

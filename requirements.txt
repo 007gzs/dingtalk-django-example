@@ -1,5 +1,5 @@
 Pillow
-PyMySQL
+mysqlclient
 redis
 hiredis
 gevent
