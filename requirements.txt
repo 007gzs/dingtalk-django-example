@@ -10,5 +10,5 @@ django-redis-cache
 djangorestframework
 django-restframework-apiview>=1.2.20
 celery
-pycrypto
+cryptography
 dingtalk-sdk>=1.1.0
