@@ -16,6 +16,13 @@ MYSQL_USERNAME = 'root'  # MYSQL 用户名
 MYSQL_PASSWORD = ''  # MYSQL 密码
 
 DINGTALK_CORP_ID = ''  # 钉钉企业号 (企业接入用)
-DINGTALK_CORP_SECRET = ''  # 钉钉企业Secret (企业接入用)
 DINGTALK_TOKEN = ''  # 钉钉企业加密解密token (企业接入用)
 DINGTALK_AES_KEY = ''  # 钉钉企业加密解密aes_key (企业接入用)
+
+DINGTALK_USE_APP_KEY = True
+
+DINGTALK_CORP_SECRET = ''  # 钉钉企业Secret (企业接入用) DINGTALK_USE_APP_KEY 为False时候使用
+
+DINGTALK_APP_KEY = ''  # 钉钉企业AppKey (企业接入用) DINGTALK_USE_APP_KEY 为True时候使用
+DINGTALK_APP_SECRET = ''  # 钉钉企业AppSecret (企业接入用) DINGTALK_USE_APP_KEY 为True时候使用
+

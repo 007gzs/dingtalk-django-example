@@ -5,7 +5,7 @@ import redis
 from apiview import utility
 from django.conf import settings
 
-from dingtalk import SecretClient
+from dingtalk import SecretClient, AppKeyClient
 from dingtalk.storage.kvstorage import KvStorage
 
 from . import models
@@ -13,9 +13,12 @@ from . import models
 
 redis_client = redis.Redis.from_url(settings.REDIS_DINGTALK_URL)
 
-client = SecretClient(settings.DINGTALK_CORP_ID, settings.DINGTALK_CORP_SECRET,
-                      settings.DINGTALK_TOKEN, settings.DINGTALK_AES_KEY, KvStorage(redis_client))
-
+if settings.DINGTALK_USE_APP_KEY:
+    client = AppKeyClient(settings.DINGTALK_CORP_ID, settings.DINGTALK_APP_KEY, settings.DINGTALK_APP_SECRET,
+                          settings.DINGTALK_TOKEN, settings.DINGTALK_AES_KEY, KvStorage(redis_client))
+else:
+    client = SecretClient(settings.DINGTALK_CORP_ID, settings.DINGTALK_CORP_SECRET,
+                          settings.DINGTALK_TOKEN, settings.DINGTALK_AES_KEY, KvStorage(redis_client))
 
 def get_department_ids(proced=set(), parent_id=None):
 
