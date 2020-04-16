@@ -30,7 +30,3 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(api_patterns)),
 ]
-if settings.DEBUG:
-    urlpatterns.append(
-        url(r'^api.js$', generate_api_js)
-    )
