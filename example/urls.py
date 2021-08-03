@@ -19,7 +19,6 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
-from apiview.common_view import generate_api_js
 
 api_patterns = [
     url(r'^dingtalk/isv/', include("apps.isv.views")),
